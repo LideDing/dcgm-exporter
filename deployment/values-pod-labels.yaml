@@ -1,0 +1,25 @@
+# Pod Labels 功能配置
+# 使用方法：helm install dcgm-exporter deployment/ -f deployment/values-pod-labels.yaml -n monitoring
+#
+# 此配置文件启用 GPU 指标中输出 Pod Labels，并通过正则表达式过滤需要输出的 labels。
+# 正则语法为 Go regexp (https://pkg.go.dev/regexp/syntax)，不是 glob 通配符。
+#
+# 常见正则转换示例：
+#   通配符 app*       → 正则 ^app.*
+#   精确匹配 team     → 正则 ^team$
+#   前缀匹配 app.kubernetes.io/ → 正则 ^app\.kubernetes\.io/.*
+
+kubernetes:
+  # 启用 Pod Labels 输出到 GPU 指标
+  enablePodLabels: true
+
+  # 正则过滤 Pod Labels（空列表 = 输出所有 labels）
+  # 只有匹配至少一个正则的 label key 才会被输出
+  podLabelAllowlistRegex:
+    - "^app$"                         # 精确匹配 "app" label
+    - "^app\\.kubernetes\\.io/.*"     # app.kubernetes.io/ 开头的所有 labels
+    - "^(team|env|version)$"          # 精确匹配 team、env、version
+
+  # RBAC 自动创建（需要 pods 的 list/watch 权限）
+  rbac:
+    create: true
